@@ -19,5 +19,5 @@ class Subject(Base):
 
 class StudentSubject(Base):
     __tablename__ = "student_subject"
-    student_id = Column(Integer, ForeignKey("student.id"))
-    subject_id = Column(Integer, ForeignKey("subject.id"))
+    student_id = Column(Integer, ForeignKey("student.id"), primary_key=True)
+    subject_id = Column(Integer, ForeignKey("subject.id"), primary_key=True)

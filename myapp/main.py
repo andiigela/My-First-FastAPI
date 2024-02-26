@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 import database
 import dbentities
 from database import engine, session
-from models import FacultyBase, StudentBase, SubjectBase
+from models import FacultyBase, StudentBase, SubjectBase, StudentSubjectBase
 
 app = FastAPI();
 
@@ -125,3 +125,38 @@ def delete_subject(subject_id: int, db:Session=db_dependency):
     return f"Subject with id {db_subject.id} deleted successfully!";
 
 # Student - Subject #
+@app.get("/api/v1/subjectparticipations",tags=[subjectparticipations_tag])
+def get_subjectparticipations(db: Session = db_dependency):
+    return db.query(dbentities.StudentSubject).all();
+@app.post("/api/v1/subjectparticipations/create", tags=[subjectparticipations_tag])
+def create_participation(studentsubject_base: StudentSubjectBase,db: Session = db_dependency):
+    db_student = db.query(dbentities.Student).filter(dbentities.Student.id == studentsubject_base.student_id).first();
+    db_subject = db.query(dbentities.Subject).filter(dbentities.Subject.id == studentsubject_base.subject_id).first();
+    if (not db_student) | (not db_subject):
+        raise HTTPException(status_code=404, detail="Student or Subject does not exist");
+    if (studentsubject_base.student_id <= 0) | (studentsubject_base.subject_id <= 0):
+        raise HTTPException(status_code=404, detail="id's must be greater than 0");
+    db_participation = dbentities.StudentSubject(student_id=studentsubject_base.student_id,subject_id=studentsubject_base.subject_id);
+    db.add(db_participation);
+    db.commit();
+    db.refresh(db_participation);
+    return f"Participation created: {db_student.full_name} - {db_subject.name}";
+@app.put("/api/v1/subjectparticipations/edit/{student_id}/{subject_id}",tags=[subjectparticipations_tag])
+def update_participation(student_id: int,subject_id: int,studentsubject_base: StudentSubjectBase,db: Session = db_dependency):
+    db_studentsubject = db.query(dbentities.StudentSubject).filter((dbentities.StudentSubject.student_id == student_id) & (dbentities.StudentSubject.subject_id == subject_id)).first()
+    if not db_studentsubject:
+        raise HTTPException(status_code=404, detail="Participation does not exist!");
+    db_studentsubject.student_id = studentsubject_base.student_id;
+    db_studentsubject.subject_id = studentsubject_base.subject_id;
+    db.commit();
+    db.refresh(db_studentsubject)
+    return f"Updated participation from: {student_id} - {subject_id} to {db_studentsubject.student_id} - {db_studentsubject.subject_id}";
+
+@app.delete("/api/v1/subjectparticipations/delete/{student_id}/{subject_id}",tags=[subjectparticipations_tag])
+def delete_subject(student_id: int,subject_id: int, db:Session=db_dependency):
+    db_studentsubject = db.query(dbentities.StudentSubject).filter((dbentities.StudentSubject.student_id == student_id) & (dbentities.StudentSubject.subject_id == subject_id)).first()
+    if not db_studentsubject:
+        raise HTTPException(status_code=404, detail="Participation with that id does not exist!");
+    db.delete(db_studentsubject);
+    db.commit();
+    return f"Subject with id {student_id} - {subject_id} deleted successfully!";
