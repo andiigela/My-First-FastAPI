@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 import database
 import dbentities
 from database import engine, session
-from models import FacultyBase, StudentBase
+from models import FacultyBase, StudentBase, SubjectBase
 
 app = FastAPI();
 
@@ -20,6 +20,7 @@ db_dependency = Depends(get_db)
 
 faculty_tag = "Faculty";
 student_tag = "Student";
+subject_tag = "Subject";
 
 # Faculty #
 @app.post("/api/v1/faculty/create",tags=[faculty_tag])
@@ -88,3 +89,36 @@ def delete_student(student_id: int, db:Session=db_dependency):
     db.delete(db_student);
     db.commit();
     return f"Student with id {student_id} deleted successfully!";
+
+
+# Subject #
+@app.get("/api/v1/subjects",tags=[subject_tag])
+def get_subjects(db: Session = db_dependency):
+    return db.query(dbentities.Subject).all();
+@app.post("/api/v1/subjects/create", tags=[subject_tag])
+def create_subject(subject_base: SubjectBase,db: Session = db_dependency):
+    if (subject_base == None) | (subject_base.name == ""):
+        raise HTTPException(status_code=404, detail="Subject must not be null or empty");
+    db_subject = dbentities.Subject(name=subject_base.name);
+    db.add(db_subject);
+    db.commit();
+    db.refresh(db_subject);
+    return f"Subject id: {db_subject.id}";
+@app.put("/api/v1/subjects/edit/{subject_id}",tags=[subject_tag])
+def update_subject(subject_id: int,subject_base: SubjectBase ,db: Session = db_dependency):
+    db_subject = db.query(dbentities.Subject).filter(dbentities.Subject.id == subject_id).first();
+    if not db_subject:
+        raise HTTPException(status_code=404, detail="Subject with that id does not exist!");
+    db_subject.name = subject_base.name;
+    db.commit();
+    db.refresh(db_subject)
+    return f"Updated subject with id {db_subject.id}";
+
+@app.delete("/api/v1/subjects/delete/{subject_id}",tags=[subject_tag])
+def delete_subject(subject_id: int, db:Session=db_dependency):
+    db_subject = db.query(dbentities.Subject).filter(dbentities.Subject.id == subject_id).first();
+    if not db_subject:
+        raise HTTPException(status_code=404, detail="Subject with that id does not exist!");
+    db.delete(db_subject);
+    db.commit();
+    return f"Subject with id {db_subject.id} deleted successfully!";

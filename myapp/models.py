@@ -6,3 +6,9 @@ class StudentBase(BaseModel):
     faculty_id: int
 class FacultyBase(BaseModel):
     name: str
+
+class SubjectBase(BaseModel):
+    name: str
+class StudentSubjectBase(BaseModel):
+    student_id: int
+    subject_id: int

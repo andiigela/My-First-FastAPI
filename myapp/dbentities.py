@@ -12,3 +12,7 @@ class Student(Base):
     full_name = Column(String, index=True)
     age = Column(Integer)
     faculty_id = Column(Integer, ForeignKey("faculty.id",ondelete='CASCADE'))
+class Subject(Base):
+    __tablename__ = 'subject'
+    id = Column(Integer,primary_key=True)
+    name = Column(String, index=True)
