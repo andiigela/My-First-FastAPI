@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/firstfastapi";
 
-engine = create_engine()
+engine = create_engine(DATABASE_URL)
 
 session = sessionmaker(autocommit=False,autoflush=False,bind=engine)
 

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 
-from myapp.database import Base
+from database import Base
 class Faculty(Base):
     __tablename__ = 'faculty'
     id = Column(Integer, primary_key=True)
