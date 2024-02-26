@@ -11,4 +11,4 @@ class Student(Base):
     id = Column(Integer, primary_key=True)
     full_name = Column(String, index=True)
     age = Column(Integer)
-    faculty_id = Column(Integer, ForeignKey("faculty.id"))
+    faculty_id = Column(Integer, ForeignKey("faculty.id",ondelete='CASCADE'))
