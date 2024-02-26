@@ -16,3 +16,8 @@ class Subject(Base):
     __tablename__ = 'subject'
     id = Column(Integer,primary_key=True)
     name = Column(String, index=True)
+
+class StudentSubject(Base):
+    __tablename__ = "student_subject"
+    student_id = Column(Integer, ForeignKey("student.id"))
+    subject_id = Column(Integer, ForeignKey("subject.id"))

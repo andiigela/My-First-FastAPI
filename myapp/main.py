@@ -21,6 +21,7 @@ db_dependency = Depends(get_db)
 faculty_tag = "Faculty";
 student_tag = "Student";
 subject_tag = "Subject";
+subjectparticipations_tag = "SubjectParticipations";
 
 # Faculty #
 @app.post("/api/v1/faculty/create",tags=[faculty_tag])
@@ -122,3 +123,5 @@ def delete_subject(subject_id: int, db:Session=db_dependency):
     db.delete(db_subject);
     db.commit();
     return f"Subject with id {db_subject.id} deleted successfully!";
+
+# Student - Subject #
