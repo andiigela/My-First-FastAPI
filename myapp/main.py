@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 import database
 import dbentities
 from database import engine, session
-from models import FacultyBase
+from models import FacultyBase, StudentBase
 
 app = FastAPI();
 
@@ -57,6 +57,18 @@ def delete_faculty(faculty_id: int, db: Session = db_dependency):
 @app.get("/api/v1/students",tags=[student_tag])
 def get_students(db: Session = db_dependency):
     return db.query(dbentities.Student).all();
+
+@app.post("/api/v1/students/create", tags=[student_tag])
+def create_student(student_base: StudentBase,db: Session = db_dependency):
+    db_faculty = db.query(dbentities.Faculty).filter(dbentities.Faculty.id == student_base.faculty_id).first();
+    if not db_faculty:
+        raise HTTPException(status_code=404, detail="Faculty not found")
+    db_student = dbentities.Student(full_name=student_base.full_name,age=student_base.age,faculty_id=db_faculty.id);
+    db.add(db_student);
+    db.commit();
+    db.refresh(db_student);
+    return f"Student id: {db_student.id}";
+
 
 
 
